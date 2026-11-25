@@ -91,7 +91,10 @@ jobs:
           # Conservative mode to avoid rate limits
           # --git-storage flag enables Git-based fundamental storage
           python run_optimized_scan.py --conservative --git-storage
-
+      - name: Send summary to Slack
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+        run: python send_slack_summary.py
       - name: Show fundamental refresh stats
         if: always()
         run: |
