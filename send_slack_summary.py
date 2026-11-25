@@ -33,21 +33,43 @@ def parse_signals(text, kind):
     return blocks
 
 
+def post(webhook, text):
+    try:
+        r = requests.post(webhook, json={"text": text}, timeout=30)
+    except Exception as e:
+        print(f"HATA: Slack'e baglanilamadi: {type(e).__name__}")
+        return False
+    print("Slack yaniti:", r.status_code, r.text)
+    if r.status_code != 200:
+        print("HATA: Slack mesaji kabul etmedi. Webhook adresi yanlis ya da iptal edilmis olabilir.")
+        return False
+    return True
+
+
 def count(text, label):
     m = re.search(rf"{label}: (\d+)", text)
     return m.group(1) if m else "?"
 
 
 def main():
-    webhook = os.getenv("SLACK_WEBHOOK_URL")
+    webhook = (os.getenv("SLACK_WEBHOOK_URL") or "").strip().strip('"').strip("'").strip()
     if not webhook:
-        print("SLACK_WEBHOOK_URL not set, skipping Slack message.")
-        return 0
-    if not REPORT.exists():
-        requests.post(webhook, json={"text": "⚠️ Tarama raporu bulunamadı, tarama başarısız olmuş olabilir."}, timeout=30)
-        return 0
+        print("HATA: SLACK_WEBHOOK_URL secret bos veya tanimli degil.")
+        return 1
+    if not webhook.startswith("https://hooks.slack.com/"):
+        print(f"HATA: Webhook adresi https://hooks.slack.com/ ile baslamiyor. Ilk 25 karakter: {webhook[:25]!r}")
+        return 1
 
-    text = REPORT.read_text(encoding="utf-8")
+    report = REPORT
+    if not report.exists():
+        dated = sorted(REPORT.parent.glob("optimized_scan_*.txt"))
+        if not dated:
+            post(webhook, "⚠️ Tarama raporu bulunamadı, tarama başarısız olmuş olabilir.")
+            return 0
+        report = dated[-1]
+    print("Rapor:", report)
+
+    text = report.read_text(encoding="utf-8")
     date = re.search(r"Scan Date: (\S+)", text)
     date = date.group(1) if date else ""
 
@@ -77,9 +99,7 @@ def main():
         msg.append(f"*🔴 En güçlü {min(TOP_SELLS, len(sells))} satış*")
         msg.append(", ".join(f"{s['ticker']} ({s['score']})" for s in sells[:TOP_SELLS]))
 
-    r = requests.post(webhook, json={"text": "\n".join(msg)}, timeout=30)
-    print("Slack:", r.status_code, r.text)
-    return 0
+    return 0 if post(webhook, "\n".join(msg)) else 1
 
 
 if __name__ == "__main__":
