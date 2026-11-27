@@ -6848,8 +6848,8 @@
     "in_earnings_season": true
   },
   "GOLD": {
-    "last_updated": "2026-08-14T13:46:26.246390",
-    "in_earnings_season": true
+    "last_updated": "2026-11-27T22:00:09.515427",
+    "in_earnings_season": false
   },
   "GOLF": {
     "last_updated": "2026-10-29T18:46:08.833364",
@@ -8420,7 +8420,7 @@
     "in_earnings_season": true
   },
   "STRK": {
-    "last_updated": "2026-08-27T23:03:39.824947",
+    "last_updated": "2026-11-27T22:28:39.539052",
     "in_earnings_season": false
   },
   "TSLA": {
@@ -8857,6 +8857,14 @@
   },
   "WCCB": {
     "last_updated": "2026-11-26T21:58:27.437601",
+    "in_earnings_season": false
+  },
+  "EQPT": {
+    "last_updated": "2026-11-27T21:55:02.159103",
+    "in_earnings_season": false
+  },
+  "MWH": {
+    "last_updated": "2026-11-27T22:13:02.366769",
     "in_earnings_season": false
   }
 }
